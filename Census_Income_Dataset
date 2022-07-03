@@ -1,0 +1,68 @@
+#importing Packages
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, mean_squared_error
+import numpy as np
+import pandas as pd
+
+#Creating instance
+lgr =LogisticRegression()
+
+#load Dataset
+df=pd.read_csv("C:/Users/Home/Documents/Snehal/adult.csv")
+print(df)
+
+#Dealing with Missing Values
+df[df == '?'] = np.nan
+for col in ['workclass','occupation','native.country']:
+    df[col].fillna(df[col].mode()[0], inplace=True)
+df.isnull().sum()
+
+#x and y Values
+x=df.drop(['income'],axis=1)
+y=df["income"]
+x.head()
+
+
+#Traning and Testing
+x_train,x_test,y_train,y_test=train_test_split(x,y,random_state=0,test_size=0.3)
+Categorical = ['workclass','education','marital.status','occupation','relationship','race','sex','native.country']
+for feature in Categorical:
+         le = preprocessing.LabelEncoder()
+         x_train[feature] = le.fit_transform(x_train[feature])
+         x_test[feature] = le.transform(x_test[feature])
+lgr.fit(x_train,y_train)
+
+# Predection and Error
+y_pred=lgr.predict(x_test)
+print('Logistic Regression Accuracy Score :{0:0.4f} '.format(accuracy_score(y_test,y_pred)))
+
+# pca = PCA()
+# pca.fit(x_train)
+# cumsum = np.cumsum(pca.explained_variance_ratio_)
+# dim = np.argmax(cumsum >= 0.90) + 1
+# print('The number of dimensions required to to preserve 90 % of variance is', dim)
+#
+#
+#OUTPUT
+'''
+C:\Users\Home\PycharmProjects\DataScience\venv\Scripts\python.exe C:/Users/Home/PycharmProjects/DataScience/Census_Income_Dataset.py
+       age workclass  fnlwgt  ... hours.per.week  native.country income
+0       90       Nan   77053  ...             40   United-States  <=50K
+1       82   Private  132870  ...             18   United-States  <=50K
+2       66       Nan  186061  ...             40   United-States  <=50K
+3       54   Private  140359  ...             40   United-States  <=50K
+4       41   Private  264663  ...             40   United-States  <=50K
+...    ...       ...     ...  ...            ...             ...    ...
+32556   22   Private  310152  ...             40   United-States  <=50K
+32557   27   Private  257302  ...             38   United-States  <=50K
+32558   40   Private  154374  ...             40   United-States   >50K
+32559   58   Private  151910  ...             40   United-States  <=50K
+32560   22   Private  201490  ...             20   United-States  <=50K
+
+[32561 rows x 15 columns]
+Logistic Regression Accuracy Score :0.7923 
+'''
